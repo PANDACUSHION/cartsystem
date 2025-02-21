@@ -9,15 +9,20 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const productRoutes = require('./routes/productRoutes');
 const productSoldRoutes = require('./routes/productSoldRoutes');
 const authRoutes = require('./routes/authRoutes');
+const cartRoutes = require('./routes/cartRoutes');
 // Initialize express app
 const app = express();
 
 // Set the port number for the server (default to 5000 if not provided)
 const PORT = process.env.PORT || 5000;
-
-// Middleware Setup
 app.use(cors({
-    origin: 'http://localhost:5173', // or whatever your frontend URL is
+    origin: (origin, callback) => {
+        if (!origin || origin.startsWith('http://localhost')) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -32,7 +37,7 @@ app.use('/api/categories', categoryRoutes); // Category-related routes (create, 
 app.use('/api/products', productRoutes); // Product-related routes (create, update, delete products, etc.)
 app.use('/api/products-sold', productSoldRoutes); // Product sold-related routes (add, update, get product sales stats, etc.)
 app.use('/api/users', authRoutes);
-
+app.use('/api/cart', cartRoutes);
 // Start the server and establish the database connection
 app.listen(PORT, async () => {
     console.log(`Server is running on port ${PORT}`);
