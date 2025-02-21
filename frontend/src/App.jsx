@@ -10,6 +10,7 @@ import CreateProduct from './component/CreateProduct';
 import CreateUser from './component/CreateUser';
 import Stats from './component/Stats';
 import CategoryList from './component/CategoryList';
+import ProductListing from './component/ProductListing';
 
 const App = () => {
     return (
@@ -24,6 +25,7 @@ const App = () => {
                         <Route path="/create-user" element={<CreateUser />} />
                         <Route path="/stats" element={<Stats />} />
                         <Route path="/categories" element={<CategoryList />} />
+                        <Route path="/ProductListing" element={<ProductListing />} />
                         {/* Add this as the default route for Layout */}
                         <Route index element={<div>Welcome to the Dashboard</div>} />
                     </Route>

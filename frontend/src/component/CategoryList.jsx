@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { FolderOpen, AlertCircle, Loader2, Search, Plus } from 'lucide-react';
+import { Search, Loader2, FolderIcon, ChevronRight, Package, AlertCircle } from 'lucide-react';
 
 const CategoryList = () => {
     const [categories, setCategories] = useState([]);
@@ -12,15 +11,42 @@ const CategoryList = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/categories/all', {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-                setCategories(response.data.categories || []);
+                const [categoriesResponse, productsResponse] = await Promise.all([
+                    fetch('http://localhost:5000/api/categories/all'),
+                    fetch('http://localhost:5000/api/products/all')
+                ]);
+
+                if (!categoriesResponse.ok) throw new Error(`Categories fetch failed: ${categoriesResponse.statusText}`);
+                if (!productsResponse.ok) throw new Error(`Products fetch failed: ${productsResponse.statusText}`);
+
+                const categoriesData = await categoriesResponse.json();
+                const productsData = await productsResponse.json();
+
+                console.log('Categories:', categoriesData);
+                console.log('Products:', productsData);
+
+                const categoriesArray = Array.isArray(categoriesData.categories) ? categoriesData.categories : [];
+                const productsArray = Array.isArray(productsData.products) ? productsData.products : [];
+
+                const categoriesWithCounts = categoriesArray
+                    .filter(category => category && typeof category === 'object')
+                    .map(category => {
+                        const matchingProducts = productsArray.filter(
+                            product => product && String(product.category_id) === String(category.id)
+                        );
+                        console.log(`Category: ${category.name} (ID: ${category.id}), Matches:`, matchingProducts);
+                        return {
+                            ...category,
+                            name: category.name || 'Unnamed Category',
+                            productCount: matchingProducts.length
+                        };
+                    });
+
+                setCategories(categoriesWithCounts);
                 setLoading(false);
             } catch (err) {
-                setError(err.response?.data?.message || err.message);
+                console.error('Error fetching categories:', err);
+                setError(err.message);
                 setLoading(false);
             }
         };
@@ -28,9 +54,12 @@ const CategoryList = () => {
         fetchCategories();
     }, []);
 
-    const filteredCategories = categories.filter(category =>
-        category.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredCategories = categories.filter(category => {
+        if (!category || !category.name) return false;
+        const categoryName = category.name.toString().toLowerCase();
+        const searchQuery = searchTerm.toLowerCase().trim();
+        return categoryName.includes(searchQuery);
+    });
 
     if (loading) {
         return (
@@ -45,7 +74,7 @@ const CategoryList = () => {
 
     if (error) {
         return (
-            <div className="alert alert-error">
+            <div className="flex items-center gap-2 text-red-500 bg-red-50 p-4 rounded-lg">
                 <AlertCircle className="w-5 h-5" />
                 <span>{error}</span>
             </div>
@@ -54,19 +83,15 @@ const CategoryList = () => {
 
     return (
         <div className="bg-base-100 rounded-xl shadow-lg p-6">
-            {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                    <FolderOpen className="w-6 h-6 text-primary" />
-                    <h2 className="text-2xl font-semibold text-base-content">Categories</h2>
+                    <FolderIcon className="w-6 h-6 text-primary" />
+                    <h2 className="text-2xl font-semibold text-base-content">
+                        Categories ({categories.length})
+                    </h2>
                 </div>
-                <button className="btn btn-primary btn-sm gap-2">
-                    <Plus className="w-4 h-4" />
-                    Add Category
-                </button>
             </div>
 
-            {/* Search Bar */}
             <div className="relative mb-6">
                 <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40" />
                 <input
@@ -78,12 +103,11 @@ const CategoryList = () => {
                 />
             </div>
 
-            {/* Categories Grid */}
             {filteredCategories.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="space-y-2">
                     {filteredCategories.map((category) => (
                         <div
-                            key={category.id}
+                            key={category.id || Math.random()}
                             className={`
                                 p-4 rounded-lg border cursor-pointer transition-all
                                 hover:border-primary hover:shadow-md
@@ -94,20 +118,19 @@ const CategoryList = () => {
                             onClick={() => setSelectedCategory(category)}
                         >
                             <div className="flex items-center justify-between">
-                                <h3 className="font-medium text-base-content">
-                                    {category.name}
-                                </h3>
-                                <span className="text-sm text-base-content/60">
-                                    {/* Assuming category has a count property */}
-                                    {category.count || 0} items
-                                </span>
+                                <div className="flex items-center gap-3">
+                                    <Package className="w-5 h-5 text-primary" />
+                                    <h3 className="font-medium text-base-content">
+                                        {category.name}
+                                    </h3>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <span className="text-sm text-base-content/60">
+                                        {category.productCount} {category.productCount === 1 ? 'product' : 'products'}
+                                    </span>
+                                    <ChevronRight className="w-4 h-4 text-base-content/40" />
+                                </div>
                             </div>
-                            {/* You can add more category details here */}
-                            {category.description && (
-                                <p className="text-sm text-base-content/60 mt-2 line-clamp-2">
-                                    {category.description}
-                                </p>
-                            )}
                         </div>
                     ))}
                 </div>
@@ -125,7 +148,7 @@ const CategoryList = () => {
                         </div>
                     ) : (
                         <div className="flex flex-col items-center gap-2 text-base-content/60">
-                            <FolderOpen className="w-12 h-12" />
+                            <FolderIcon className="w-12 h-12" />
                             <p>No categories available.</p>
                             <p className="text-sm">Start by adding your first category!</p>
                         </div>

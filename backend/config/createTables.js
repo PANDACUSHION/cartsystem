@@ -46,5 +46,14 @@ module.exports = {
         quantity INT NOT NULL CHECK (quantity > 0),
         state order_state NOT NULL
     );
+    
+    CREATE TABLE IF NOT EXISTS cart (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+    product_id INT REFERENCES product(id) ON DELETE CASCADE,
+    quantity INT NOT NULL CHECK (quantity > 0),
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
     `
 };

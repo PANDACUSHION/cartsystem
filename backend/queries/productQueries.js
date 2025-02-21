@@ -1,24 +1,30 @@
-module.exports = {
-    productQueries: {
-        insertProduct: `
-      INSERT INTO product (product_name, category_id, image, quantity, price) 
-      VALUES ($1, $2, $3, $4, $5) RETURNING *;
+const productQueries = {
+    insertProduct: `
+        INSERT INTO product (product_name, category_id, image, quantity, price)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING *
     `,
-        getProductById: `
-      SELECT * FROM product WHERE id = $1;
+    getAllProducts: `
+        SELECT p.id, p.product_name, p.category_id, p.image, p.quantity, p.price, c.name AS category_name
+        FROM product p
+        LEFT JOIN category c ON p.category_id = c.id
     `,
-        updateProduct: `
-      UPDATE product 
-      SET product_name = $1, category_id = $2, image = $3, quantity = $4, price = $5 
-      WHERE id = $6 RETURNING *;
+    getProductById: `
+        SELECT p.id, p.product_name, p.category_id, p.image, p.quantity, p.price
+        FROM product p
+        WHERE p.id = $1
     `,
-        deleteProduct: `
-      DELETE FROM product WHERE id = $1 RETURNING *;
+    updateProduct: `
+        UPDATE product
+        SET product_name = $1, category_id = $2, image = $3, quantity = $4, price = $5
+        WHERE id = $6
+        RETURNING *
     `,
-        getAllProducts: `
-      SELECT p.id, p.product_name, p.image, p.quantity, p.price, c.name AS category_name 
-      FROM product p 
-      LEFT JOIN category c ON p.category_id = c.id;
+    deleteProduct: `
+        DELETE FROM product
+        WHERE id = $1
+        RETURNING *
     `
-    }
 };
+
+module.exports = { productQueries };

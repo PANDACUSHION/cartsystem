@@ -36,7 +36,7 @@ const AdminNav = () => (
 const UserNav = () => (
     <div className="flex items-center gap-2">
         <NavLink to="/categories" icon={Package}>Categories</NavLink>
-        <NavLink to="/products" icon={Package}>Products</NavLink>
+        <NavLink to="/ProductListing" icon={Package}>Products</NavLink>
     </div>
 );
 
