@@ -1,5 +1,5 @@
 const db = require('../config/db.config');
-const Category = require('../queries/catagoryQueries');
+const categoryQueries = require('../queries/categoryQueries'); // Corrected import
 
 const categoryController = {
     // Create a new category
@@ -11,7 +11,7 @@ const categoryController = {
                 return res.status(400).json({ message: "Category name is required" });
             }
 
-            const result = await db.query(Category.categoryQueries.insertCategory, [name]);
+            const result = await db.query(categoryQueries.insertCategory, [name]); // Updated reference
 
             res.status(201).json({ message: "Category created successfully", category: result.rows[0] });
         } catch (error) {
@@ -23,7 +23,7 @@ const categoryController = {
     // Get all categories
     async findAll(req, res) {
         try {
-            const result = await db.query(Category.categoryQueries.getAllCategories);
+            const result = await db.query(categoryQueries.getAllCategories);
             res.status(200).json({ categories: result.rows });
         } catch (error) {
             console.error("Error fetching categories:", error);
@@ -36,7 +36,7 @@ const categoryController = {
         try {
             const { id } = req.params;
 
-            const result = await db.query(Category.categoryQueries.getCategoryById, [id]);
+            const result = await db.query(categoryQueries.getCategoryById, [id]);
 
             if (result.rows.length === 0) {
                 return res.status(404).json({ message: "Category not found" });
@@ -59,7 +59,7 @@ const categoryController = {
                 return res.status(400).json({ message: "Category name is required" });
             }
 
-            const result = await db.query(Category.categoryQueries.updateCategory, [name, id]);
+            const result = await db.query(categoryQueries.updateCategory, [name, id]);
 
             if (result.rows.length === 0) {
                 return res.status(404).json({ message: "Category not found" });
@@ -77,7 +77,7 @@ const categoryController = {
         try {
             const { id } = req.params;
 
-            const result = await db.query(Category.categoryQueries.removeCategory, [id]);
+            const result = await db.query(categoryQueries.removeCategory, [id]);
 
             if (result.rows.length === 0) {
                 return res.status(404).json({ message: "Category not found" });

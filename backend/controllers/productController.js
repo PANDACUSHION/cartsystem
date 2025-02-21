@@ -1,6 +1,6 @@
 const db = require('../config/db.config');
 const Product = require('../queries/productQueries');
-const upload = require('../middleware/multer');
+const upload = require('../middleware/multer'); // Import multer middleware
 
 const productController = {
     // Create a new product
@@ -54,7 +54,7 @@ const productController = {
         }
     },
 
-    // Update a product
+    // Update a product (including image upload)
     async update(req, res) {
         try {
             const { id } = req.params;

@@ -1,58 +1,75 @@
-// src/component/Layout.jsx
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import {
+    Home,
+    Settings,
+    User,
+    Package,
+    BarChart,
+    LogOut,
+    Menu,
+    ChevronDown,
+    Plus
+} from 'lucide-react';
 
-// Admin Navigation Component
+const NavLink = ({ to, children, icon: Icon }) => (
+    <Link
+        to={to}
+        className="btn btn-ghost btn-sm normal-case gap-2"
+    >
+        {Icon && <Icon size={18} />}
+        {children}
+    </Link>
+);
+
 const AdminNav = () => (
-    <nav className="bg-gray-800 text-white p-4">
-        <div className="container mx-auto flex justify-between items-center">
-            <Link to="/" className="text-xl font-bold">Admin Dashboard</Link>
-            <div className="space-x-4">
-                <Link to="/categories" className="hover:text-gray-300">Categories</Link>
-                <Link to="/create-category" className="hover:text-gray-300">Create Category</Link>
-                <Link to="/create-product" className="hover:text-gray-300">Create Product</Link>
-                <Link to="/create-user" className="hover:text-gray-300">Create User</Link>
-                <Link to="/stats" className="hover:text-gray-300">Stats</Link>
-            </div>
-        </div>
-    </nav>
+    <div className="flex items-center gap-2">
+        <NavLink to="/categories" icon={Package}>Categories</NavLink>
+        <NavLink to="/create-category" icon={Plus}>New Category</NavLink>
+        <NavLink to="/create-product" icon={Package}>New Product</NavLink>
+        <NavLink to="/create-user" icon={User}>New User</NavLink>
+        <NavLink to="/stats" icon={BarChart}>Stats</NavLink>
+    </div>
 );
 
-// User Navigation Component (for non-admin users)
 const UserNav = () => (
-    <nav className="bg-blue-600 text-white p-4">
-        <div className="container mx-auto flex justify-between items-center">
-            <Link to="/" className="text-xl font-bold">User Dashboard</Link>
-            <div className="space-x-4">
-                <Link to="/categories" className="hover:text-gray-300">Categories</Link>
-                <Link to="/products" className="hover:text-gray-300">Products</Link>
-            </div>
-        </div>
-    </nav>
+    <div className="flex items-center gap-2">
+        <NavLink to="/categories" icon={Package}>Categories</NavLink>
+        <NavLink to="/products" icon={Package}>Products</NavLink>
+    </div>
 );
 
-// Guest Navigation Component (for unauthenticated users)
 const GuestNav = () => (
-    <nav className="bg-gray-600 text-white p-4">
-        <div className="container mx-auto flex justify-between items-center">
-            <Link to="/" className="text-xl font-bold">My App</Link>
-            <div className="space-x-4">
-                <Link to="/login" className="hover:text-gray-300">Login</Link>
-                <Link to="/register" className="hover:text-gray-300">Register</Link>
-            </div>
-        </div>
-    </nav>
+    <div className="flex items-center gap-2">
+        <NavLink to="/login" icon={User}>Login</NavLink>
+        <NavLink to="/register" icon={User}>Register</NavLink>
+    </div>
 );
 
-const Layout = ({ children }) => {
+const Layout = () => {
     const auth = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const adminRoutes = ['/create-category', '/create-product', '/create-user', '/stats'];
 
-    // Handle loading state when auth context is not yet initialized
-    if (!auth) {
-        return <div>Loading...</div>;
-    }
+    useEffect(() => {
+        if (!auth.user) {
+            if (adminRoutes.includes(location.pathname) ||
+                location.pathname.startsWith('/categories') ||
+                location.pathname.startsWith('/products')) {
+                navigate('/login');
+            }
+        } else if (auth.user.role !== 'admin' && adminRoutes.includes(location.pathname)) {
+            navigate('/');
+        }
+    }, [auth.user, location.pathname, navigate]);
+
+    if (!auth) return (
+        <div className="min-h-screen flex items-center justify-center">
+            <span className="loading loading-spinner loading-lg"></span>
+        </div>
+    );
 
     const { user, logout } = auth;
 
@@ -61,41 +78,89 @@ const Layout = ({ children }) => {
         navigate('/login');
     };
 
-    // Render the appropriate navbar based on user role
     const renderNav = () => {
-        if (!user) {
-            return <GuestNav />;
-        }
+        if (!user) return <GuestNav />;
+        return user.role === 'admin' ? <AdminNav /> : <UserNav />;
+    };
 
-        // Assuming 'admin' is the only role with special privileges
-        // You can extend this logic for other roles if needed
-        switch (user.role) {
-            case 'admin':
-                return <AdminNav />;
-            default:
-                return <UserNav />;
-        }
+    const getNavTheme = () => {
+        if (!user) return 'navbar-neutral';
+        return user.role === 'admin' ? 'navbar-primary' : 'navbar-info';
     };
 
     return (
-        <div>
-            {renderNav()}
-            {user && (
-                <div className="absolute right-4 top-4">
-                    <span className="text-white mr-4">
-                        Welcome, {user.username} ({user.role})
-                    </span>
-                    <button
-                        onClick={handleLogout}
-                        className="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-                    >
-                        Logout
-                    </button>
+        <div className="min-h-screen bg-base-200">
+            <div className={`navbar ${getNavTheme()} text-neutral-content shadow-lg`}>
+                <div className="navbar-start">
+                    {/* Mobile Menu */}
+                    <div className="dropdown lg:hidden">
+                        <label tabIndex={0} className="btn btn-ghost btn-circle">
+                            <Menu />
+                        </label>
+                        <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                            {renderNav()}
+                        </ul>
+                    </div>
+
+                    {/* Desktop Logo */}
+                    <Link to="/" className="btn btn-ghost normal-case text-xl gap-2">
+                        <Home />
+                        {user?.role === 'admin' ? 'Admin Dashboard' : 'Dashboard'}
+                    </Link>
                 </div>
-            )}
-            <div className="container mx-auto p-4">
-                {children}
+
+                {/* Desktop Navigation */}
+                <div className="navbar-center hidden lg:flex">
+                    {renderNav()}
+                </div>
+
+                {/* User Menu */}
+                <div className="navbar-end">
+                    {user && (
+                        <div className="dropdown dropdown-end">
+                            <label tabIndex={0} className="btn btn-ghost gap-2">
+                                <div className="avatar placeholder">
+                                    <div className="bg-neutral-focus text-neutral-content rounded-full w-8">
+                                        <span>{user.username[0].toUpperCase()}</span>
+                                    </div>
+                                </div>
+                                <span className="hidden md:inline">{user.username}</span>
+                                <ChevronDown className="h-4 w-4" />
+                            </label>
+                            <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                                <li>
+                                    <a className="justify-between">
+                    <span className="flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      Profile
+                    </span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a>
+                    <span className="flex items-center gap-2">
+                      <Settings className="h-4 w-4" />
+                      Settings
+                    </span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a onClick={handleLogout} className="text-error">
+                    <span className="flex items-center gap-2">
+                      <LogOut className="h-4 w-4" />
+                      Logout
+                    </span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    )}
+                </div>
             </div>
+
+            <main className="container mx-auto px-4 py-8">
+                <Outlet />
+            </main>
         </div>
     );
 };

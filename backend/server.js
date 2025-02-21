@@ -16,7 +16,12 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware Setup
-app.use(cors()); // Enable Cross-Origin Requests for all routes
+app.use(cors({
+    origin: 'http://localhost:5173', // or whatever your frontend URL is
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(bodyParser.json()); // Parse JSON request bodies
 app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded data
 app.use('/uploads', express.static('uploads')); // Serve uploaded files (like images) from 'uploads' folder
