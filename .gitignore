@@ -132,4 +132,5 @@ dist
 
 #images
 
-.jpg
+*.jpg
+
