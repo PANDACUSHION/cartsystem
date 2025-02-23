@@ -12,6 +12,7 @@ import {
     ChevronDown,
     Plus
 } from 'lucide-react';
+import Cart from "./Cart";
 
 const NavLink = ({ to, children, icon: Icon }) => (
     <Link
@@ -37,6 +38,7 @@ const UserNav = () => (
     <div className="flex items-center gap-2">
         <NavLink to="/categories" icon={Package}>Categories</NavLink>
         <NavLink to="/ProductListing" icon={Package}>Products</NavLink>
+        <Cart /> {/* Replace the NavLink with direct Cart component */}
     </div>
 );
 
@@ -130,26 +132,26 @@ const Layout = () => {
                             <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
                                 <li>
                                     <a className="justify-between">
-                    <span className="flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      Profile
-                    </span>
+                                        <span className="flex items-center gap-2">
+                                            <User className="h-4 w-4" />
+                                            Profile
+                                        </span>
                                     </a>
                                 </li>
                                 <li>
                                     <a>
-                    <span className="flex items-center gap-2">
-                      <Settings className="h-4 w-4" />
-                      Settings
-                    </span>
+                                        <span className="flex items-center gap-2">
+                                            <Settings className="h-4 w-4" />
+                                            Settings
+                                        </span>
                                     </a>
                                 </li>
                                 <li>
                                     <a onClick={handleLogout} className="text-error">
-                    <span className="flex items-center gap-2">
-                      <LogOut className="h-4 w-4" />
-                      Logout
-                    </span>
+                                        <span className="flex items-center gap-2">
+                                            <LogOut className="h-4 w-4" />
+                                            Logout
+                                        </span>
                                     </a>
                                 </li>
                             </ul>

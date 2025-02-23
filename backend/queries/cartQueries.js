@@ -21,7 +21,7 @@ const cartQueries = {
     clearUserCart: 'DELETE FROM cart WHERE user_id = $1 RETURNING *',
 
     // Check if product exists in user's cart
-    checkProductInCart: 'SELECT * FROM cart WHERE user_id = $1 AND product_id = $2'
+    checkProductInCart: 'SELECT * FROM cart WHERE user_id = $1 AND product_id = $2',
 };
 
 module.exports = cartQueries;
