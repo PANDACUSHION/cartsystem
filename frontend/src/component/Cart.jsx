@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { ShoppingBag, Minus, Plus, Trash2, Loader2 } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 
 const Cart = () => {
+    const navigate = useNavigate();
     const [cartItems, setCartItems] = useState([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -107,6 +109,11 @@ const Cart = () => {
     const handleCartToggle = (e) => {
         e.preventDefault();
         setIsCartOpen(!isCartOpen);
+    };
+
+    const handleCheckout = () => {
+        setIsCartOpen(false); // Close the cart dropdown
+        navigate('/checkout'); // Navigate to checkout page
     };
 
     useEffect(() => {
@@ -240,6 +247,7 @@ const Cart = () => {
                                     type="button"
                                     className="btn btn-primary w-full"
                                     disabled={!cartItems.length || loading}
+                                    onClick={handleCheckout}
                                 >
                                     Checkout
                                 </button>

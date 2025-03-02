@@ -10,6 +10,7 @@ const productRoutes = require('./routes/productRoutes');
 const productSoldRoutes = require('./routes/productSoldRoutes');
 const authRoutes = require('./routes/authRoutes');
 const cartRoutes = require('./routes/cartRoutes');
+const orderRoutes = require('./routes/orderRoutes');
 // Initialize express app
 const app = express();
 
@@ -38,6 +39,7 @@ app.use('/api/products', productRoutes); // Product-related routes (create, upda
 app.use('/api/products-sold', productSoldRoutes); // Product sold-related routes (add, update, get product sales stats, etc.)
 app.use('/api/users', authRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes);
 // Start the server and establish the database connection
 app.listen(PORT, async () => {
     console.log(`Server is running on port ${PORT}`);

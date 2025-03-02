@@ -1,4 +1,3 @@
-// src/App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
@@ -12,6 +11,8 @@ import Stats from './component/Stats';
 import CategoryList from './component/CategoryList';
 import ProductListing from './component/ProductListing';
 import Cart from "./component/Cart.jsx";
+import Checkout from "./component/Checkout.jsx";
+import Orders from "./component/Orders.jsx";
 
 const App = () => {
     return (
@@ -28,6 +29,8 @@ const App = () => {
                         <Route path="/categories" element={<CategoryList />} />
                         <Route path="/ProductListing" element={<ProductListing />} />
                         <Route path="/cart" element={<Cart/>} />
+                        <Route path="/checkout" element={<Checkout/>} />
+                        <Route path="/orders" element={<Orders/>} />
                         {/* Add this as the default route for Layout */}
                         <Route index element={<div>Welcome to the Dashboard</div>} />
                     </Route>
